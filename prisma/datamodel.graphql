@@ -1,8 +1,9 @@
-type User {
+type Comment {
   id: ID! @id
-  name: String!
-  email: String!
-  posts: [Post]!
+  text: String!
+  author: User!
+  post: Post!
+  comments: [Comment!]!
 }
 
 type Post {
@@ -11,4 +12,12 @@ type Post {
   body: String!
   published: Boolean!
   author: User!
+  comments: [Comment!]!
+}
+
+type User {
+  id: ID! @id
+  name: String!
+  email: String! @unique
+  posts: [Post!]!
 }
