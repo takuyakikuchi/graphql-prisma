@@ -15,6 +15,7 @@ const prisma = new Prisma({
 // });
 
 // --------------- mutation ---------------
+// --- promise ---
 // prisma.mutation
 //   .createPost(
 //     // first argument
@@ -37,26 +38,83 @@ const prisma = new Prisma({
 //     console.log(JSON.stringify(data, undefined, 2));
 //   });
 
-prisma.mutation
-  .updatePost(
-    // first argument
+// prisma.mutation
+//   .updatePost(
+//     // first argument
+//     {
+//       data: {
+//         body: 'Updated by prisma-binding v2',
+//       },
+//       where: {
+//         id: 'ck9kossfp005m0742mj3xb5up',
+//       },
+//     },
+//     // second argument
+//     '{id}'
+//   )
+//   .then((data) => {
+//     return prisma.query.posts(
+//       null,
+//       '{ id title body published author { id name }}'
+//     );
+//   })
+//   .then((data) => {
+//     console.log(JSON.stringify(data, undefined, 2));
+//   });
+
+// --- async ---
+const createPost = async (userID, data) => {
+  const post = await prisma.mutation.createPost(
     {
       data: {
-        body: 'Updated by prisma-binding v2',
-      },
-      where: {
-        id: 'ck9kossfp005m0742mj3xb5up',
+        ...data,
+        author: {
+          connect: {
+            id: userID,
+          },
+        },
       },
     },
-    // second argument
-    '{id}'
-  )
-  .then((data) => {
-    return prisma.query.posts(
-      null,
-      '{ id title body published author { id name }}'
-    );
-  })
-  .then((data) => {
-    console.log(JSON.stringify(data, undefined, 2));
-  });
+    '{ id }'
+  );
+
+  const user = await prisma.query.user(
+    {
+      where: { id: userID },
+    },
+    '{ id name email posts { id title } }'
+  );
+
+  return user;
+};
+
+// createPost('ck9gm1i2t01fi0742svxb12op', {
+//   title: 'Async post',
+//   body: 'Async post',
+//   published: true,
+// });
+
+const updatePost = async (postID, data) => {
+  const post = await prisma.mutation.updatePost(
+    {
+      data: { ...data },
+      where: { id: postID },
+    },
+    '{ id author { id }}'
+  );
+
+  const user = await prisma.query.user(
+    {
+      where: { id: post.author.id },
+    },
+    '{ id name email }'
+  );
+
+  return user;
+};
+
+updatePost('ck9kqktzy00av0742mbpwk4x8', { body: 'Updated with async' }).then(
+  (user) => {
+    console.log(JSON.stringify(user, undefined, 2));
+  }
+);
