@@ -1,6 +1,7 @@
 # Basic GraphQL
 
 This is a tutorial from udemy.
+https://www.udemy.com/course/graphql-bootcamp/
 
 # Stack
 
