@@ -11,3 +11,7 @@ https://www.udemy.com/course/graphql-bootcamp/
 - Object spreader: babel-plugin-transform-object-rest-spread
 - GraphQL binding for Prisma: prisma-binding
 - GraphQL cli: graphql-cli
+
+# To start program
+
+``` npm run start ```
