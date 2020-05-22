@@ -2,11 +2,11 @@
 import { GraphQLServer, PubSub } from 'graphql-yoga';
 
 // Internal
-import prisma from './prisma';
 import Comment from './resolvers/Comment';
 import db from './db';
 import Mutation from './resolvers/Mutation';
 import Post from './resolvers/Post';
+import prisma from './prisma';
 import Query from './resolvers/Query';
 import Subscription from './resolvers/Subscription';
 import User from './resolvers/User';

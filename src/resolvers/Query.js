@@ -3,23 +3,25 @@ const Query = {
     return db.comments;
   },
 
-  posts(parent, args, { db }, info) {
-    if (!args.query) return db.posts;
+  posts(parent, args, { db, prisma }, info) {
+    return prisma.query.posts(null, info);
 
-    return db.posts.filter((post) => {
-      const titleMatched = post.title
-        .toLowerCase()
-        .includes(args.query.toLowerCase());
+    // if (!args.query) return db.posts;
 
-      const bodyMatched = post.body
-        .toLowerCase()
-        .includes(args.query.toLowerCase());
+    // return db.posts.filter((post) => {
+    //   const titleMatched = post.title
+    //     .toLowerCase()
+    //     .includes(args.query.toLowerCase());
 
-      return titleMatched || bodyMatched;
-    });
+    //   const bodyMatched = post.body
+    //     .toLowerCase()
+    //     .includes(args.query.toLowerCase());
+
+    //   return titleMatched || bodyMatched;
+    // });
   },
 
-  users(parent, args, { prisma }, info) {
+  users(parent, args, { db, prisma }, info) {
     return prisma.query.users(null, info);
 
     // if (!args.query) return db.users;

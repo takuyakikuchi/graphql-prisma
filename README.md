@@ -1,7 +1,8 @@
-# Basic GraphQL
+# To start app
 
-This is a tutorial from udemy.
-https://www.udemy.com/course/graphql-bootcamp/
+1. Start docker
+2. Start GQL server(localhost::4000)
+`npm run start`
 
 # Stack
 
