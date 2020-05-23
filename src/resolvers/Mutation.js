@@ -1,22 +1,29 @@
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 
 const Mutation = {
   // --------------------- User ---------------------
   // Create New User
-  createUser(parent, args, { db }, info) {
-    const emailTaken = db.users.some((user) => user.email === args.data.email);
+  async createUser(parent, args, { prisma }, info) {
+    const isEmailTaken = await prisma.exists.User({ email: args.data.email });
 
-    if (emailTaken) {
-      throw new Error("Email already taken.");
+    if (isEmailTaken) {
+      throw new Error('Email already taken.');
     }
 
-    const user = {
-      id: uuidv4(),
-      ...args.data,
-    };
+    return prisma.mutation.createUser({ data: args.data }, info);
+    // const emailTaken = db.users.some((user) => user.email === args.data.email);
 
-    db.users.push(user);
-    return user;
+    // if (emailTaken) {
+    //   throw new Error("Email already taken.");
+    // }
+
+    // const user = {
+    //   id: uuidv4(),
+    //   ...args.data,
+    // };
+
+    // db.users.push(user);
+    // return user;
   },
 
   // Delete User
@@ -58,20 +65,20 @@ const Mutation = {
       throw new Error("User with given ID doesn't exist.");
     }
 
-    if (typeof data.name === "string") {
+    if (typeof data.name === 'string') {
       user.name = data.name;
     }
 
-    if (typeof data.email === "string") {
+    if (typeof data.email === 'string') {
       const emailExist = db.users.some((user) => user.email === data.email);
       if (emailExist) {
-        throw new Error("The given email is already taken.");
+        throw new Error('The given email is already taken.');
       }
 
       user.email = data.email;
     }
 
-    if (typeof data.age !== "undefined") {
+    if (typeof data.age !== 'undefined') {
       user.age = data.age;
     }
 
@@ -95,9 +102,9 @@ const Mutation = {
     db.posts.push(post);
 
     if (post.published) {
-      pubsub.publish("post", {
+      pubsub.publish('post', {
         post: {
-          mutation: "CREATED",
+          mutation: 'CREATED',
           data: post,
         },
       });
@@ -121,9 +128,9 @@ const Mutation = {
     db.comments = db.comments.filter((comment) => comment.post !== args.id);
 
     if (deletedPost) {
-      pubsub.publish("post", {
+      pubsub.publish('post', {
         post: {
-          mutation: "DELETED",
+          mutation: 'DELETED',
           data: deletedPost,
         },
       });
@@ -136,34 +143,34 @@ const Mutation = {
     const { id, data } = args;
     const post = db.posts.find((post) => post.id === id);
     const originalState = { ...post };
-    let mutation = "UPDATED";
+    let mutation = 'UPDATED';
 
     if (!post) {
       throw new Error("Post with given ID doesn't exist.");
     }
 
-    if (typeof data.title === "string") {
+    if (typeof data.title === 'string') {
       post.title = data.title;
     }
 
-    if (typeof data.body === "string") {
+    if (typeof data.body === 'string') {
       post.body = data.body;
     }
 
-    if (typeof data.published === "boolean") {
+    if (typeof data.published === 'boolean') {
       post.published = data.published;
       // published false => true
       if (post.published && !originalState.published) {
-        mutation = "CREATED";
+        mutation = 'CREATED';
       }
       // published true => false
       else if (!post.published && originalState.published) {
-        mutation = "DELETED";
+        mutation = 'DELETED';
       }
     }
 
     if (post) {
-      pubsub.publish("post", {
+      pubsub.publish('post', {
         post: {
           mutation,
           data: post,
@@ -197,7 +204,7 @@ const Mutation = {
       db.comments.push(comment);
       pubsub.publish(`comment ${args.data.post}`, {
         comment: {
-          mutation: "CREATED",
+          mutation: 'CREATED',
           data: comment,
         },
       });
@@ -220,7 +227,7 @@ const Mutation = {
 
     pubsub.publish(`comment ${deletedComment.post}`, {
       comment: {
-        mutation: "DELETED",
+        mutation: 'DELETED',
         data: deletedComment,
       },
     });
@@ -235,11 +242,11 @@ const Mutation = {
       throw new Error("Comment with given ID doesn't exist.");
     }
 
-    if (typeof data.text === "string") {
+    if (typeof data.text === 'string') {
       comment.text = data.text;
       pubsub.publish(`comment ${comment.post}`, {
         comment: {
-          mutation: "UPDATED",
+          mutation: 'UPDATED',
           data: comment,
         },
       });
