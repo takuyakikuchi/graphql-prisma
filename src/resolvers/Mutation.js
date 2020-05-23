@@ -11,48 +11,17 @@ const Mutation = {
     }
 
     return prisma.mutation.createUser({ data: args.data }, info);
-    // const emailTaken = db.users.some((user) => user.email === args.data.email);
-
-    // if (emailTaken) {
-    //   throw new Error("Email already taken.");
-    // }
-
-    // const user = {
-    //   id: uuidv4(),
-    //   ...args.data,
-    // };
-
-    // db.users.push(user);
-    // return user;
   },
 
   // Delete User
-  deleteUser(parent, args, { db }, info) {
-    const userIndex = db.users.findIndex((user) => user.id === args.id);
+  async deleteUser(parent, args, { prisma }, info) {
+    const isUserExist = await prisma.exists.User({ id: args.id });
 
-    if (userIndex === -1) {
+    if (!isUserExist) {
       throw new Error("User doesn't exist.");
     }
 
-    // Delete User
-    const deletedUsers = db.users.splice(userIndex, 1);
-
-    // Delete related Posts & attached Comments
-    db.posts = db.posts.filter((post) => {
-      const match = post.author === args.id;
-
-      if (match) {
-        // Delete comments attached to deleted post
-        comments = comments.filter((comment) => post.id !== comment.id);
-      }
-
-      return !match;
-    });
-
-    // Delete User Comments
-    db.comments = db.comments.filter((comment) => comment.author !== args.id);
-
-    return deletedUsers[0];
+    return prisma.mutation.deleteUser({ where: { id: args.id } }, info);
   },
 
   // Update User
