@@ -46,46 +46,20 @@ const Mutation = {
     return prisma.mutation.deletePost({ where: { id: args.id } }, info);
   },
 
-  updatePost(parent, args, { db, pubsub }, info) {
-    const { id, data } = args;
-    const post = db.posts.find((post) => post.id === id);
-    const originalState = { ...post };
-    let mutation = 'UPDATED';
-
-    if (!post) {
-      throw new Error("Post with given ID doesn't exist.");
-    }
-
-    if (typeof data.title === 'string') {
-      post.title = data.title;
-    }
-
-    if (typeof data.body === 'string') {
-      post.body = data.body;
-    }
-
-    if (typeof data.published === 'boolean') {
-      post.published = data.published;
-      // published false => true
-      if (post.published && !originalState.published) {
-        mutation = 'CREATED';
-      }
-      // published true => false
-      else if (!post.published && originalState.published) {
-        mutation = 'DELETED';
-      }
-    }
-
-    if (post) {
-      pubsub.publish('post', {
-        post: {
-          mutation,
-          data: post,
+  async updatePost(parent, args, { prisma }, info) {
+    return prisma.mutation.updatePost(
+      {
+        where: { id: args.id },
+        data: {
+          title: args.data.title,
+          body: args.data.body,
+          published: args.data.published,
+          author: { connect: args.data.user },
+          comments: { connect: args.data.comment },
         },
-      });
-    }
-
-    return post;
+      },
+      info
+    );
   },
 
   // --------------------- Comment ---------------------
