@@ -19,61 +19,49 @@ const Mutation = {
       data: args.data,
       info,
     });
-
-    // const { id, data } = args;
-
-    // const user = db.users.find((user) => user.id === id);
-
-    // if (!user) {
-    //   throw new Error("User with given ID doesn't exist.");
-    // }
-
-    // if (typeof data.name === 'string') {
-    //   user.name = data.name;
-    // }
-
-    // if (typeof data.email === 'string') {
-    //   const emailExist = db.users.some((user) => user.email === data.email);
-    //   if (emailExist) {
-    //     throw new Error('The given email is already taken.');
-    //   }
-
-    //   user.email = data.email;
-    // }
-
-    // if (typeof data.age !== 'undefined') {
-    //   user.age = data.age;
-    // }
-
-    // return user;
   },
 
   // --------------------- Post ---------------------
   // Create New Post
-  createPost(parent, args, { db, pubsub }, info) {
-    const userExist = db.users.some((user) => user.id === args.data.author);
-
-    if (!userExist) {
-      throw new Error("User doesn't exist.");
-    }
-
-    const post = {
-      id: uuidv4(),
-      ...args.data,
-    };
-
-    db.posts.push(post);
-
-    if (post.published) {
-      pubsub.publish('post', {
-        post: {
-          mutation: 'CREATED',
-          data: post,
+  async createPost(parent, args, { prisma }, info) {
+    return prisma.mutation.createPost(
+      {
+        data: {
+          title: args.data.title,
+          body: args.data.body,
+          published: args.data.published,
+          author: {
+            connect: {
+              id: args.data.author,
+            },
+          },
         },
-      });
-    }
+      },
+      info
+    );
+    // const userExist = db.users.some((user) => user.id === args.data.author);
 
-    return post;
+    // if (!userExist) {
+    //   throw new Error("User doesn't exist.");
+    // }
+
+    // const post = {
+    //   id: uuidv4(),
+    //   ...args.data,
+    // };
+
+    // db.posts.push(post);
+
+    // if (post.published) {
+    //   pubsub.publish('post', {
+    //     post: {
+    //       mutation: 'CREATED',
+    //       data: post,
+    //     },
+    //   });
+    // }
+
+    // return post;
   },
 
   // Delete Post & appended Comments
