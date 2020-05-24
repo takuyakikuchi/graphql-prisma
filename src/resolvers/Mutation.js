@@ -4,54 +4,48 @@ const Mutation = {
   // --------------------- User ---------------------
   // Create New User
   async createUser(parent, args, { prisma }, info) {
-    const isEmailTaken = await prisma.exists.User({ email: args.data.email });
-
-    if (isEmailTaken) {
-      throw new Error('Email already taken.');
-    }
-
     return prisma.mutation.createUser({ data: args.data }, info);
   },
 
   // Delete User
   async deleteUser(parent, args, { prisma }, info) {
-    const isUserExist = await prisma.exists.User({ id: args.id });
-
-    if (!isUserExist) {
-      throw new Error("User doesn't exist.");
-    }
-
     return prisma.mutation.deleteUser({ where: { id: args.id } }, info);
   },
 
   // Update User
-  updateUser(parent, args, { db }, info) {
-    const { id, data } = args;
+  async updateUser(parent, args, { prisma }, info) {
+    return prisma.mutation.updateUser({
+      where: { id: args.id },
+      data: args.data,
+      info,
+    });
 
-    const user = db.users.find((user) => user.id === id);
+    // const { id, data } = args;
 
-    if (!user) {
-      throw new Error("User with given ID doesn't exist.");
-    }
+    // const user = db.users.find((user) => user.id === id);
 
-    if (typeof data.name === 'string') {
-      user.name = data.name;
-    }
+    // if (!user) {
+    //   throw new Error("User with given ID doesn't exist.");
+    // }
 
-    if (typeof data.email === 'string') {
-      const emailExist = db.users.some((user) => user.email === data.email);
-      if (emailExist) {
-        throw new Error('The given email is already taken.');
-      }
+    // if (typeof data.name === 'string') {
+    //   user.name = data.name;
+    // }
 
-      user.email = data.email;
-    }
+    // if (typeof data.email === 'string') {
+    //   const emailExist = db.users.some((user) => user.email === data.email);
+    //   if (emailExist) {
+    //     throw new Error('The given email is already taken.');
+    //   }
 
-    if (typeof data.age !== 'undefined') {
-      user.age = data.age;
-    }
+    //   user.email = data.email;
+    // }
 
-    return user;
+    // if (typeof data.age !== 'undefined') {
+    //   user.age = data.age;
+    // }
+
+    // return user;
   },
 
   // --------------------- Post ---------------------
