@@ -39,55 +39,11 @@ const Mutation = {
       },
       info
     );
-    // const userExist = db.users.some((user) => user.id === args.data.author);
-
-    // if (!userExist) {
-    //   throw new Error("User doesn't exist.");
-    // }
-
-    // const post = {
-    //   id: uuidv4(),
-    //   ...args.data,
-    // };
-
-    // db.posts.push(post);
-
-    // if (post.published) {
-    //   pubsub.publish('post', {
-    //     post: {
-    //       mutation: 'CREATED',
-    //       data: post,
-    //     },
-    //   });
-    // }
-
-    // return post;
   },
 
   // Delete Post & appended Comments
-  deletePost(parent, args, { db, pubsub }, info) {
-    const postIndex = db.posts.findIndex((post) => post.id === args.id);
-
-    if (postIndex === -1) {
-      throw new Error("Post with the given ID doesn't exist.");
-    }
-
-    // Delete Post
-    const [deletedPost] = db.posts.splice(postIndex, 1);
-
-    // Delete appended Comments
-    db.comments = db.comments.filter((comment) => comment.post !== args.id);
-
-    if (deletedPost) {
-      pubsub.publish('post', {
-        post: {
-          mutation: 'DELETED',
-          data: deletedPost,
-        },
-      });
-    }
-
-    return deletedPost;
+  async deletePost(parent, args, { prisma }, info) {
+    return prisma.mutation.deletePost({ where: { id: args.id } }, info);
   },
 
   updatePost(parent, args, { db, pubsub }, info) {
