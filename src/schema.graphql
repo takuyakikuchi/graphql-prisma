@@ -1,15 +1,15 @@
 type Query {
   comment: Comment!
-  post: Post!
-  user: User!
   comments: [Comment!]!
+  post: Post!
   posts(query: String): [Post!]!
+  user: User!
   users(query: String): [User!]!
 }
 
 type Mutation {
   # User
-  createUser(data: CreateUserInput!): User!
+  createUser(data: CreateUserInput!): AuthPayload!
   deleteUser(id: ID!): User!
   updateUser(id: ID!, data: UpdateUserInput): User!
   # Post
@@ -20,6 +20,11 @@ type Mutation {
   createComment(data: CreateCommentInput!): Comment!
   deleteComment(id: ID!): Comment!
   updateComment(id: ID!, data: UpdateCommentInput): Comment!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
 }
 
 type Subscription {
