@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const Mutation = {
   // --------------------- User ---------------------
-  // Create New User
+
   async createUser(parent, args, { prisma }, info) {
     // Validation
     if (args.data.password.length < 8) {
@@ -27,12 +27,35 @@ const Mutation = {
     };
   },
 
-  // Delete User
   async deleteUser(parent, args, { prisma }, info) {
     return prisma.mutation.deleteUser({ where: { id: args.id } }, info);
   },
 
-  // Update User
+  async login(parent, args, { prisma }, info) {
+    const user = await prisma.query.user({
+      where: {
+        email: args.data.email,
+      },
+    });
+
+    // Email check
+    if (!user) {
+      throw new Error('User does not exist with the given email.');
+    }
+
+    // Password check
+    await bcrypt.compare(args.data.password, user.password).then((res) => {
+      if (!res) {
+        throw new Error('Wrong password');
+      }
+    });
+
+    return {
+      user,
+      token: jwt.sign({ userId: user.id }, 'secret'),
+    };
+  },
+
   async updateUser(parent, args, { prisma }, info) {
     return prisma.mutation.updateUser({
       where: { id: args.id },
@@ -42,7 +65,6 @@ const Mutation = {
   },
 
   // --------------------- Post ---------------------
-  // Create New Post
   async createPost(parent, args, { prisma }, info) {
     return prisma.mutation.createPost(
       {
@@ -61,7 +83,6 @@ const Mutation = {
     );
   },
 
-  // Delete Post & appended Comments
   async deletePost(parent, args, { prisma }, info) {
     return prisma.mutation.deletePost({ where: { id: args.id } }, info);
   },
@@ -77,7 +98,6 @@ const Mutation = {
   },
 
   // --------------------- Comment ---------------------
-  // Create New Comment
   async createComment(parent, args, { prisma }, info) {
     return prisma.mutation.createComment(
       {
@@ -99,7 +119,6 @@ const Mutation = {
     );
   },
 
-  // Delete Comment
   async deleteComment(parent, args, { prisma }, info) {
     return prisma.mutation.deleteComment({ where: { id: args.id } }, info);
   },
