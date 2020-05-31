@@ -1,6 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
+import { getUserId } from '../utils/getUserId';
 
 const Mutation = {
   // --------------------- User ---------------------
@@ -12,9 +13,8 @@ const Mutation = {
     }
 
     const password = await bcrypt.hash(args.data.password, 10);
-    const token = jwt.sign({ userId: args.data.id }, 'secret');
 
-    const user = prisma.mutation.createUser({
+    const user = await prisma.mutation.createUser({
       data: {
         ...args.data,
         password,
@@ -23,7 +23,7 @@ const Mutation = {
 
     return {
       user,
-      token,
+      token: jwt.sign({ userId: user.id }, 'secret'),
     };
   },
 
@@ -65,7 +65,9 @@ const Mutation = {
   },
 
   // --------------------- Post ---------------------
-  async createPost(parent, args, { prisma }, info) {
+  async createPost(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
+
     return prisma.mutation.createPost(
       {
         data: {
@@ -74,7 +76,7 @@ const Mutation = {
           published: args.data.published,
           author: {
             connect: {
-              id: args.data.author,
+              id: userId,
             },
           },
         },
