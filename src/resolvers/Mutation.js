@@ -27,8 +27,10 @@ const Mutation = {
     };
   },
 
-  async deleteUser(parent, args, { prisma }, info) {
-    return prisma.mutation.deleteUser({ where: { id: args.id } }, info);
+  async deleteUser(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
+
+    return prisma.mutation.deleteUser({ where: { id: userId } }, info);
   },
 
   async login(parent, args, { prisma }, info) {
