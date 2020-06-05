@@ -67,7 +67,6 @@ input UpdatePostInput {
 # User Input
 input CreateCommentInput {
   text: String!
-  author: ID!
   post: ID!
 }
 

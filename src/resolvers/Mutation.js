@@ -130,14 +130,16 @@ const Mutation = {
   },
 
   // --------------------- Comment ---------------------
-  async createComment(parent, args, { prisma }, info) {
+  async createComment(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
+
     return prisma.mutation.createComment(
       {
         data: {
           text: args.data.text,
           author: {
             connect: {
-              id: args.data.author,
+              id: userId,
             },
           },
           post: {
@@ -151,11 +153,37 @@ const Mutation = {
     );
   },
 
-  async deleteComment(parent, args, { prisma }, info) {
+  async deleteComment(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
+
+    const isCommentExist = await prisma.exists.Comment({
+      id: args.id,
+      author: {
+        id: userId,
+      },
+    });
+
+    if (!isCommentExist) {
+      throw new Error("The provided comment doesn't exist!");
+    }
+
     return prisma.mutation.deleteComment({ where: { id: args.id } }, info);
   },
 
-  async updateComment(parent, args, { prisma }, info) {
+  async updateComment(parent, args, { prisma, request }, info) {
+    const userId = getUserId(request);
+
+    const isCommentExist = await prisma.exists.Comment({
+      id: args.id,
+      author: {
+        id: userId,
+      },
+    });
+
+    if (!isCommentExist) {
+      throw new Error("The provided comment doesn't exist!");
+    }
+
     return prisma.mutation.updateComment(
       {
         where: { id: args.id },
