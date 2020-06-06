@@ -1,3 +1,5 @@
+import { getUserId } from '../utils/getUserId';
+
 const Query = {
   comments(parent, args, { prisma }, info) {
     return prisma.query.comments(null, info);
@@ -53,10 +55,36 @@ const Query = {
     }
 
     return prisma.query.users(null, info);
-    // if (!args.query) return db.users;
-    // return db.users.filter((user) => {
-    //   return user.name.toLowerCase().includes(args.query.toLowerCase());
-    // });
+  },
+
+  async post(parent, args, { prisma, request }, info) {
+    // Second argument is for throwing error when there is no userId
+    const userId = getUserId(request, false);
+
+    const posts = await prisma.query.posts(
+      {
+        where: {
+          id: args.id,
+          OR: [
+            {
+              published: true,
+            },
+            {
+              author: {
+                id: userId,
+              },
+            },
+          ],
+        },
+      },
+      info
+    );
+
+    if (posts.length === 0) {
+      throw new Error('Post not found');
+    }
+
+    return posts[0];
   },
 };
 
