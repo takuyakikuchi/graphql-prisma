@@ -22,6 +22,7 @@ type Mutation {
 type Query {
   comment: Comment!
   comments: [Comment!]!
+  myPosts(query: String): [Post!]!
   post(id: ID!): Post!
   posts(query: String): [Post!]!
   user: User!
