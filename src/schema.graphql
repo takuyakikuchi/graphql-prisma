@@ -94,7 +94,7 @@ type Post {
 
 type User {
   comments: [Comment!]!
-  email: String!
+  email: String
   id: ID!
   name: String!
   password: String!
