@@ -2,14 +2,9 @@
 import { GraphQLServer, PubSub } from 'graphql-yoga';
 
 // Internal
-import Comment from './resolvers/Comment';
 import db from './db';
-import Mutation from './resolvers/Mutation';
-import Post from './resolvers/Post';
 import prisma from './prisma';
-import Query from './resolvers/Query';
-import Subscription from './resolvers/Subscription';
-import User from './resolvers/User';
+import { resolvers, fragmentReplacements } from './resolvers/index';
 
 // Subscription
 const pubsub = new PubSub();
@@ -17,14 +12,7 @@ const pubsub = new PubSub();
 // Server
 const server = new GraphQLServer({
   typeDefs: './src/schema.graphql',
-  resolvers: {
-    Query,
-    Mutation,
-    Subscription,
-    Comment,
-    Post,
-    User,
-  },
+  resolvers,
   context(request) {
     return {
       db,
@@ -33,6 +21,7 @@ const server = new GraphQLServer({
       request,
     };
   },
+  fragmentReplacements,
 });
 
 server.start(() => {
