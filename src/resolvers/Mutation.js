@@ -120,6 +120,24 @@ const Mutation = {
       throw new Error("The provided Post doesn't exist!");
     }
 
+    const isPublished = await prisma.exists.Post({
+      id: args.id,
+      published: true,
+    });
+
+    if (isPublished && args.data.published === false) {
+      prisma.mutation.deleteManyComments(
+        {
+          where: {
+            post: {
+              id: args.id,
+            },
+          },
+        },
+        info
+      );
+    }
+
     return prisma.mutation.updatePost(
       {
         where: { id: args.id },
