@@ -51,6 +51,7 @@ input LoginInput {
 input UpdateUserInput {
   name: String
   email: String
+  password: String
 }
 
 # User Post

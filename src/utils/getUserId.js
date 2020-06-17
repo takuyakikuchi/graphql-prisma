@@ -6,8 +6,9 @@ export const getUserId = (request, requestAuth = true) => {
     ? request.request.headers.authorization
     : request.connection.context.Authorization;
 
-  const token = header.replace('Bearer ', '');
-  if (token) {
+  if (header) {
+    const token = header.replace('Bearer ', '');
+
     // Error thrown when secret-word(second arg) is not correct
     const decoded = jwt.verify(token, 'secret');
 
