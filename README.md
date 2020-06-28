@@ -1,6 +1,6 @@
 # To start app
 
-1. Start docker
+1. Start Docker
 2. Start GQL server(localhost::4000)
 `npm run start`
 
